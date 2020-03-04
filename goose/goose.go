@@ -1,19 +1,16 @@
 package goose
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 )
 
+// context 封装req和res
+type HandlerFunc func(*Context)
+
 /*
  ** Engine接收器: 实现http.ListenAndServe中的handler接口
- ** type Handler interface {
-		ServeHTTP(w ResponseWriter, r *Request)
-	}
- ** 传递参数handlerFuncMap: 储存所有响应函数
 */
-type HandlerFunc func(w http.ResponseWriter, r *http.Request)
 type Engine struct {
 	router *Router
 }
@@ -53,11 +50,7 @@ func (engine *Engine) POST(pattern string, handler HandlerFunc) {
  ** func ServeHTTP(): 接口函数ServeHTTP的具体实现
  ** 从map中检索是否注册有handler 调用handler或404 error
 */
-func (engine *Engine) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	key := req.Method + "-" + req.URL.Path
-	if handler, ok := engine.router.handlerFuncMap[key]; ok {
-		handler(w, req)
-	} else {
-		fmt.Fprintf(w, "404 NOT FOUND: %s\n", req.URL)
-	}
+func (engine *Engine) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+	context := newContext(res, req)
+	engine.router.handle(context)
 }

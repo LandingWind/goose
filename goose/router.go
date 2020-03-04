@@ -1,9 +1,5 @@
 package goose
 
-import (
-	"fmt"
-	"net/http"
-)
 
 type Router struct {
 	handlerFuncMap map[string]HandlerFunc
@@ -21,11 +17,11 @@ func (router *Router) addHandlerFunc(method string, pattern string, handler Hand
 	router.handlerFuncMap[key] = handler
 }
 
-func (router *Router) handle(w http.ResponseWriter, req *http.Request) {
-	key := req.Method + "-" + req.URL.Path
+func (router *Router) handle(ctx *Context) {
+	key := ctx.Method + "-" + ctx.Path
 	if handler, ok := router.handlerFuncMap[key]; ok {
-		handler(w, req)
+		handler(ctx)
 	} else {
-		fmt.Fprintf(w, "404 NOT FOUND: %s\n", req.URL)
+		ctx.Send("Not Found", 404)
 	}
 }

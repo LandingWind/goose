@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
+	// "fmt"
 	"log"
-	"net/http"
+	// "net/http"
 	// own define
 	goose "./goose"
 )
@@ -11,11 +11,11 @@ import (
 func main() {
 	engine:=goose.New()
 
-	engine.GET("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "This is Home page!")
+	engine.GET("/", func(ctx *goose.Context) {
+		ctx.Send("dddd hello main home", 200)
 	})
-	engine.GET("/hello", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello World page!")
+	engine.GET("/hello", func(ctx *goose.Context) {
+		ctx.Html("<h1>loooks bigger ,right?</h1>", 200)
 	})
 
 	log.Fatal(engine.BoostEngine(":9999"))
