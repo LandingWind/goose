@@ -46,5 +46,24 @@ func main() {
 	engine.GET("/about", func(ctx *Context) {})
 	engine.GET("/hi/good", func(ctx *Context) {})
 	engine.GET("/hi/bad", func(ctx *Context) {})
-	log.Fatal(engine.BoostEngine(":9999"))
+
+	// test group
+	v1 := engine.Group("/v1")
+	{
+		v1.GET("/", func(ctx *Context) {
+			ctx.Html("<h1>Hello Group Router</h1>", 200)
+		})
+		v1.GET("/hello", func(ctx *Context) {
+			ctx.Send(fmt.Sprintf("hello %s, you're at %s\n", ctx.Query("name"), ctx.Path), 200)
+		})
+		// test nested group
+		v2 := v1.Group("/nested/v2")
+		v2.GET("/", func(ctx *Context) {
+			ctx.Html("<h1>Hello Nested Group Router</h1>", 200)
+		})
+		v2.GET("/hello", func(ctx *Context) {
+			ctx.Send(fmt.Sprintf("hello %s, you're at %s\n", ctx.Query("name"), ctx.Path), 200)
+		})
+	}
+	log.Fatal(engine.BoostEngine("localhost:9999"))
 }
