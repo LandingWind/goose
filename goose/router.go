@@ -1,6 +1,5 @@
 package goose
 
-
 type Router struct {
 	handlerFuncMap map[string]HandlerFunc
 }
@@ -11,7 +10,7 @@ func newRouter() *Router {
 
 /*
  ** func addHandlerFunc(): 注册HandlerFunc "method-pattern"作为key
-*/
+ */
 func (router *Router) addHandlerFunc(method string, pattern string, handler HandlerFunc) {
 	key := method + "-" + pattern
 	router.handlerFuncMap[key] = handler
