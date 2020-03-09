@@ -28,6 +28,8 @@ func New() *Engine {
  */
 func (engine *Engine) BoostEngine(baseUrl string) (err error) {
 	log.Println("Goose Engine Started...")
+	log.Println("Show Trie Tree Routes:")
+	engine.router.printRouter()
 	return http.ListenAndServe(baseUrl, engine)
 }
 

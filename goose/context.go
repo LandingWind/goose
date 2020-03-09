@@ -10,8 +10,9 @@ type Context struct {
 	Res http.ResponseWriter
 	Req *http.Request
 	// 解析过后的key
-	Method string // post,get一类
-	Path   string // /hello
+	Method string            // post,get一类
+	Path   string            // /hello
+	Params map[string]string // 动态路由参数
 	// res info
 	StatusCode int
 }
@@ -25,6 +26,15 @@ func newContext(res http.ResponseWriter, req *http.Request) *Context {
 		Path:       req.URL.Path,
 		StatusCode: 200,
 	}
+}
+
+// get route param :public
+func (ctx *Context) Param(key string) string {
+	val, ok := ctx.Params[key]
+	if ok {
+		return val
+	}
+	return ""
 }
 
 // get params :public
