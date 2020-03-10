@@ -7,7 +7,7 @@ import (
 
 type Router struct {
 	rootNode       map[string]*TrieNode
-	handlerFuncMap map[string]HandlerFunc
+	handlerFuncMap map[string]HandlerFunc // golang函数一般是值调用
 }
 
 // get, post each has a Trie Router Tree
@@ -57,10 +57,13 @@ func (router *Router) handle(ctx *Context) {
 		ctx.Params = params
 		key := ctx.Method + "-" + node.fullPath
 		handler := router.handlerFuncMap[key]
-		handler(ctx)
+		ctx.handlers = append(ctx.handlers, handler) // 路由匹配的handler放在最后
 	} else {
-		ctx.Send("Not Found", 404)
+		ctx.handlers = append(ctx.handlers, func(context *Context) {
+			context.Send("Not Found", 404)
+		})
 	}
+	ctx.Next()
 }
 
 func (router *Router) parseTrieRoute(method string, path string) (*TrieNode, map[string]string) {

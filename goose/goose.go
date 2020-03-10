@@ -3,6 +3,7 @@ package goose
 import (
 	"log"
 	"net/http"
+	"strings"
 )
 
 // context 封装req和res
@@ -52,6 +53,9 @@ func (group *RouterGroup) addRoute(method string, comp string, handler HandlerFu
 	log.Printf("Route %4s - %s", method, pattern)
 	group.engine.router.addHandlerFunc(method, pattern, handler)
 }
+func (group *RouterGroup) Use(handlers ...HandlerFunc) { // 可变参数添加middleware
+	group.middleware = append(group.middleware, handlers...)
+}
 
 /*
  ** func BoostEngine(): 启动Engine, 即调用http.ListenAndServe(), 将默认handler设置为engine
@@ -82,7 +86,13 @@ func (group *RouterGroup) POST(pattern string, handler HandlerFunc) {
  ** 从map中检索是否注册有handler 调用handler或404 error
  */
 func (engine *Engine) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-	context := newContext(res, req)
+	context := newContext(res, req) // pack context
+	// get relevant middleware
+	for _, item := range engine.groups {
+		if strings.HasPrefix(context.Path, item.prefix) {
+			context.handlers = append(context.handlers, item.middleware...)
+		}
+	}
 	log.Println(req.Method + ": " + req.URL.String())
 	engine.router.handle(context)
 }

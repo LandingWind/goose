@@ -15,6 +15,7 @@ func main() {
 	engine.GET("/hello", func(ctx *Context) {
 		ctx.Html("<h1>looks bigger ,right?</h1>", 200)
 	})
+	// test get query
 	engine.GET("/user", func(ctx *Context) {
 		var obj RawMap
 		obj = make(RawMap)
@@ -22,6 +23,7 @@ func main() {
 		obj["msg"] = "successfully received!"
 		ctx.Json(obj, 200)
 	})
+	// test post postForm
 	engine.POST("/login", func(ctx *Context) {
 		var obj RawMap
 		obj = make(RawMap)
@@ -38,15 +40,6 @@ func main() {
 	engine.GET("/hello/home/wkk", func(ctx *Context) {
 		ctx.Html(fmt.Sprintf("<h2>GET param: %s</h2>", ctx.Query("name")), 200)
 	})
-	engine.GET("/hello/home/wkk/ljq", func(ctx *Context) {
-		ctx.Html(ctx.Path, 200)
-	})
-	engine.GET("/hello/home/wkk/baby", func(ctx *Context) {})
-	engine.GET("/hello/home/ljq", func(ctx *Context) {})
-	engine.GET("/about", func(ctx *Context) {})
-	engine.GET("/hi/good", func(ctx *Context) {})
-	engine.GET("/hi/bad", func(ctx *Context) {})
-
 	// test group
 	v1 := engine.Group("/v1")
 	{
@@ -65,5 +58,16 @@ func main() {
 			ctx.Send(fmt.Sprintf("hello %s, you're at %s\n", ctx.Query("name"), ctx.Path), 200)
 		})
 	}
+	// test middleware
+	m1 := engine.Group("/performance")
+	m1.Use(Logger())
+	m1.Use(func(context *Context) {
+		context.MiddleStore("info", "Kysoo is a handsome boy!")
+	})
+	m1.GET("/hello/:name", func(ctx *Context) {
+		info := ctx.GetMiddleStorage("info")
+		ctx.Html(fmt.Sprintf("<h2>Hello: %s, %s</h2>", ctx.Param("name"), info), 200)
+	})
+
 	log.Fatal(engine.BoostEngine("localhost:9999"))
 }

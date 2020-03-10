@@ -15,17 +15,37 @@ type Context struct {
 	Params map[string]string // 动态路由参数
 	// res info
 	StatusCode int
+	// 中间件
+	handlers      []HandlerFunc
+	index         int
+	middleStorage map[string]interface{} // 中间件可储存中间运算数据
 }
 type RawMap map[string]interface{} // string-anytype map
 
 func newContext(res http.ResponseWriter, req *http.Request) *Context {
 	return &Context{
-		Res:        res,
-		Req:        req,
-		Method:     req.Method,
-		Path:       req.URL.Path,
-		StatusCode: 200,
+		Res:           res,
+		Req:           req,
+		Method:        req.Method,
+		Path:          req.URL.Path,
+		StatusCode:    200,
+		index:         -1,
+		middleStorage: make(map[string]interface{}),
 	}
+}
+
+// next()
+func (ctx *Context) Next() { // 每个handler只能调用一次
+	// 这里比较难以理解，必须用循环走完整条handler链
+	for ctx.index++; ctx.index < len(ctx.handlers); ctx.index++ {
+		ctx.handlers[ctx.index](ctx)
+	}
+}
+func (ctx *Context) MiddleStore(key string, value interface{}) {
+	ctx.middleStorage[key] = value
+}
+func (ctx *Context) GetMiddleStorage(key string) interface{} {
+	return ctx.middleStorage[key]
 }
 
 // get route param :public
