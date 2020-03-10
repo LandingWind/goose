@@ -9,11 +9,12 @@
 
 **version 0.1**
 - [x] static router
-- [x] dynamical router
+- [x] dynamical router (based on TrieTree)
 - [x] group router
 - [x] error handler support
 - [x] middleware support
 - [x] middleware temporary data pass support
+- [x] json,plain text,html support
 
 **version 0.2 (mending version)**
 - [ ] more request method support
