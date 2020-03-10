@@ -34,6 +34,7 @@ func New() *Engine {
 		// engine的RouterGroup.prefix为空字符串
 	}
 	engine.groups = []*RouterGroup{engine.RouterGroup}
+	engine.Use(Logger(), Recovery()) // 默认全局中间件
 	log.SetPrefix("【Goose】")
 	return engine
 }

@@ -4,6 +4,7 @@ import (
 	. "./goose"
 	"fmt"
 	"log"
+	"net/http"
 )
 
 func main() {
@@ -68,6 +69,10 @@ func main() {
 		info := ctx.GetMiddleStorage("info")
 		ctx.Html(fmt.Sprintf("<h2>Hello: %s, %s</h2>", ctx.Param("name"), info), 200)
 	})
-
+	// test recovery
+	engine.GET("/err", func(ctx *Context) {
+		arr := []string{"hello"}
+		ctx.Send(arr[2], http.StatusOK)
+	})
 	log.Fatal(engine.BoostEngine("localhost:9999"))
 }

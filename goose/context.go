@@ -109,3 +109,9 @@ func (ctx *Context) Json(obj RawMap, code int) {
 		http.Error(ctx.Res, err.Error(), 500)
 	}
 }
+
+// fail
+func (ctx *Context) Fail(err string, code int) {
+	ctx.index = len(ctx.handlers)
+	ctx.Json(RawMap{"message": err}, code)
+}
