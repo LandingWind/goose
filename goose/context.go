@@ -2,6 +2,7 @@ package goose
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -48,6 +49,10 @@ func (ctx *Context) GetMiddleStorage(key string) interface{} {
 	return ctx.middleStorage[key]
 }
 
+func (ctx *Context) ParamAll() map[string]string {
+	return ctx.Params
+}
+
 // get route param :public
 func (ctx *Context) Param(key string) string {
 	val, ok := ctx.Params[key]
@@ -57,9 +62,18 @@ func (ctx *Context) Param(key string) string {
 	return ""
 }
 
+func (ctx *Context) QueryAll() map[string][]string {
+	return ctx.Req.URL.Query()
+}
+
 // get params :public
 func (ctx *Context) Query(key string) string {
 	return ctx.Req.URL.Query().Get(key)
+}
+
+func (ctx *Context) PostFormAll() map[string][]string {
+	ctx.Req.ParseForm()
+	return ctx.Req.Form
 }
 
 // post params :public
@@ -68,9 +82,16 @@ func (ctx *Context) PostForm(key string) string {
 }
 
 // set res status code
-func (ctx *Context) status(code int) {
-	ctx.StatusCode = code
-	ctx.Res.WriteHeader(code)
+func (ctx *Context) status(code []int) {
+	statusCode := 200
+	if len(code) > 1 {
+		fmt.Errorf("Incorrect StatusCode Interface!\n")
+		fmt.Errorf("Using Default StatusCode Instead!\n")
+	} else if len(code) == 1 {
+		statusCode = code[0]
+	}
+	ctx.StatusCode = statusCode
+	ctx.Res.WriteHeader(statusCode)
 }
 
 func (ctx *Context) GetHeaderValue(key string) (value string) {
@@ -85,21 +106,21 @@ func (ctx *Context) header(key string, value string) {
 }
 
 // plain text :public
-func (ctx *Context) Send(txt string, code int) {
+func (ctx *Context) Send(txt string, code ...int) {
 	ctx.header("Content-Type", "text/plain")
 	ctx.status(code)
 	ctx.Res.Write([]byte(txt))
 }
 
 // html :public
-func (ctx *Context) Html(txt string, code int) {
+func (ctx *Context) Html(txt string, code ...int) {
 	ctx.header("Content-Type", "text/html")
 	ctx.status(code)
 	ctx.Res.Write([]byte(txt))
 }
 
 // json
-func (ctx *Context) Json(obj RawMap, code int) {
+func (ctx *Context) Json(obj RawMap, code ...int) {
 	ctx.header("Content-Type", "application/json")
 	ctx.status(code)
 	// NewEncoder defines the IO writer
@@ -111,7 +132,14 @@ func (ctx *Context) Json(obj RawMap, code int) {
 }
 
 // fail
-func (ctx *Context) Fail(err string, code int) {
+func (ctx *Context) Fail(err string, code ...int) {
 	ctx.index = len(ctx.handlers)
-	ctx.Json(RawMap{"message": err}, code)
+	statusCode := 404
+	if len(code) > 1 {
+		fmt.Errorf("Incorrect StatusCode Interface!\n")
+		fmt.Errorf("Using Default StatusCode Instead!\n")
+	} else if len(code) == 1 {
+		statusCode = code[0]
+	}
+	ctx.Json(RawMap{"message": err}, statusCode)
 }

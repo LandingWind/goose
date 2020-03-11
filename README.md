@@ -17,9 +17,9 @@
 - [x] json,plain text,html support
 
 **version 0.2 (mending version)**
-- [ ] more request method support
-- [ ] default value support
-- [ ] detailed format log support
+- [x] more request method support
+- [x] default value support
+- [x] detailed format log support
 
 **version 0.3**
 - [ ] static file support

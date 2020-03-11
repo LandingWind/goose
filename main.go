@@ -11,10 +11,10 @@ func main() {
 	engine := New()
 
 	engine.GET("/", func(ctx *Context) {
-		ctx.Send("hello main home", 200)
+		ctx.Send("hello main home", 1000, 1002)
 	})
 	engine.GET("/hello", func(ctx *Context) {
-		ctx.Html("<h1>looks bigger ,right?</h1>", 200)
+		ctx.Html("<h1>looks bigger ,right?</h1>")
 	})
 	// test get query
 	engine.GET("/user", func(ctx *Context) {
@@ -22,7 +22,7 @@ func main() {
 		obj = make(RawMap)
 		obj["username"] = ctx.Query("username")
 		obj["msg"] = "successfully received!"
-		ctx.Json(obj, 200)
+		ctx.Json(obj)
 	})
 	// test post postForm
 	engine.POST("/login", func(ctx *Context) {
@@ -31,7 +31,7 @@ func main() {
 		obj["username"] = ctx.PostForm("username")
 		obj["password"] = ctx.PostForm("password")
 		obj["msg"] = "successfully received!"
-		ctx.Json(obj, 200)
+		ctx.Json(obj)
 	})
 	// test trie
 	engine.GET("/hello/home", func(ctx *Context) {})
@@ -61,7 +61,6 @@ func main() {
 	}
 	// test middleware
 	m1 := engine.Group("/performance")
-	m1.Use(Logger())
 	m1.Use(func(context *Context) {
 		context.MiddleStore("info", "Kysoo is a handsome boy!")
 	})
@@ -74,5 +73,14 @@ func main() {
 		arr := []string{"hello"}
 		ctx.Send(arr[2], http.StatusOK)
 	})
+
+	// test engine options
+	options := make(map[string]bool)
+	options["logPrefix"] = true
+	options["logRequest"] = true
+	options["logRequestBody"] = true
+	engine.SetOptions(options)
+
+	// boost engine
 	log.Fatal(engine.BoostEngine("localhost:9999"))
 }
