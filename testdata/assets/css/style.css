@@ -1,0 +1,18 @@
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    height: 100vh;
+    margin: 0 !important;
+}
+
+.imgBox {
+    height: 500px;
+    width: 300px;
+}
+
+img {
+    height: 100%;
+    width: 100%;
+}

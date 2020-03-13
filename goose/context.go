@@ -20,6 +20,8 @@ type Context struct {
 	handlers      []HandlerFunc
 	index         int
 	middleStorage map[string]interface{} // 中间件可储存中间运算数据
+	// engine 指针
+	engine *Engine
 }
 type RawMap map[string]interface{} // string-anytype map
 
@@ -119,7 +121,16 @@ func (ctx *Context) Html(txt string, code ...int) {
 	ctx.Res.Write([]byte(txt))
 }
 
-// json
+// html template :public
+func (ctx *Context) HtmlTemplate(name string, data interface{}, code ...int) {
+	ctx.header("Content-Type", "text/html")
+	ctx.status(code)
+	if err := ctx.engine.htmlTemplates.ExecuteTemplate(ctx.Res, name, data); err != nil {
+		ctx.Fail(err.Error())
+	}
+}
+
+// json :public
 func (ctx *Context) Json(obj RawMap, code ...int) {
 	ctx.header("Content-Type", "application/json")
 	ctx.status(code)

@@ -2,6 +2,7 @@ package goose
 
 import (
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"strings"
@@ -31,6 +32,9 @@ type Engine struct {
 	logRequest     bool   // log是否显示请求信息
 	logRequestBody bool   // log是否显示请求体信息
 	logPerformance bool   // log是否显示请求的响应时间
+	// 模版渲染
+	htmlTemplates *template.Template // 将所有的模板加载进内存
+	funcMap       template.FuncMap   // 所有的自定义模板渲染函数
 }
 
 /*
@@ -58,7 +62,12 @@ func New() *Engine {
 	log.SetFlags(0)
 	return engine
 }
-
+func (engine *Engine) LoadHTMLGlob(pattern string) {
+	engine.htmlTemplates = template.Must(template.New("").Funcs(engine.funcMap).ParseGlob(pattern))
+}
+func (engine *Engine) SetFuncMap(funcMap template.FuncMap) {
+	engine.funcMap = funcMap
+}
 func (engine *Engine) SetOptions(options interface{}) {
 	val, ok := options.(map[string]bool)
 	if !ok {
@@ -193,6 +202,7 @@ func (group *RouterGroup) OPTIONS(pattern string, handler HandlerFunc) {
  */
 func (engine *Engine) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	context := newContext(res, req) // pack context
+	context.engine = engine
 	// get relevant middleware
 	for _, item := range engine.groups {
 		if strings.HasPrefix(context.Path, item.prefix) {
@@ -203,4 +213,8 @@ func (engine *Engine) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		log.Println(req.Method + ": " + req.URL.String())
 	}
 	engine.router.handle(context)
+}
+
+func (engine *Engine) Static(alias string, path string) {
+	engine.router.setStatic(alias, path)
 }

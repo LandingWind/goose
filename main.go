@@ -78,8 +78,20 @@ func main() {
 	options := make(map[string]bool)
 	options["logPrefix"] = true
 	options["logRequest"] = true
-	options["logRequestBody"] = true
+	options["logRequestBody"] = false
 	engine.SetOptions(options)
+
+	// test static server
+	engine.Static("assets", "testdata/assets")
+	engine.Static("html", "testdata/html")
+
+	// test template
+	engine.LoadHTMLGlob("testdata/html/*")
+	engine.GET("/render", func(ctx *Context) {
+		ctx.HtmlTemplate("abc.html", RawMap{
+			"title": "测试模版渲染",
+		})
+	})
 
 	// boost engine
 	log.Fatal(engine.BoostEngine("localhost:9999"))

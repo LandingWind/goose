@@ -22,7 +22,8 @@
 - [x] detailed format log support
 
 **version 0.3**
-- [ ] static file support
+- [x] static file support
+- [x] template render support
 - [ ] multipart form request
 - [ ] upload single file support 
 - [ ] server log file support
@@ -126,4 +127,47 @@ func main() {
     })
     log.Fatal(engine.BoostEngine("localhost:9999"))
 }
+```
+
+set goose engine options
+```golang
+/*
+* 设置选项
+prefixString   string // 前缀字符串
+logPrefix      bool   // log是否有前缀
+logTime        bool   // log是否有时间显示
+logRouterTree  bool   // 启动时是否显示已注册handle的路径
+logRequest     bool   // log是否显示请求信息
+logRequestBody bool   // log是否显示请求体信息
+logPerformance bool   // log是否显示请求的响应时间
+*/
+options := make(map[string]bool)
+options["logPrefix"] = true
+options["logRequest"] = true
+engine.SetOptions(options)
+```
+
+set static file server
+```golang
+// when visit ":port/assets/whatever file" 
+// it will be reflected to ":port/testdata/assets/whatever file" 
+// and process as static file 
+engine.Static("assets","testdata/assets")
+// btw, you can set multiple relfecting static path
+```
+
+html template
+```golang
+// example code
+engine.LoadHTMLGlob("testdata/html/*") // for loading templates into memory
+engine.GET("/render", func(ctx *Context) {
+    ctx.HtmlTemplate("abc.html", RawMap{
+        "title": "测试模版渲染",
+    })
+})
+// also, you can set renderer mapfunc by following way
+r.SetFuncMap(template.FuncMap{
+    "func1": func1,
+    "func2": func2,
+})
 ```
