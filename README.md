@@ -1,13 +1,14 @@
 # goose
 
-基于Golang+net/http的`原生` `极简易`Web框架
+Based on Golang+net/http的 `native` `handiest` Web Framework
 
 #### Basic Framework Struct
-> 参考开源框架[Gin](https://github.com/gin-gonic/gin)和[Gee](https://github.com/geektutu/7days-golang)
+> Ideas parcially from [Gin](https://github.com/gin-gonic/gin) and [Gee](https://github.com/geektutu/7days-golang)
 
 #### Feature
 
 **version 0.1**
+
 - [x] static router
 - [x] dynamical router (based on TrieTree)
 - [x] group router
@@ -35,8 +36,9 @@ todo...
 
 #### Usage Sample
 
-basic
-```golang
+#### basic
+
+```go
 import (
 	. "./goose"
 )
@@ -48,7 +50,7 @@ func main() {
 	engine.GET("/hello", func(ctx *Context) {
 		ctx.Html("<h1>looks bigger ,right?</h1>", 200)
 	})
-    engine.GET("/user", func(ctx *Context) {
+  engine.GET("/user", func(ctx *Context) {
 		var obj RawMap
 		obj = make(RawMap)
 		obj["username"] = ctx.Query("username")
@@ -63,74 +65,78 @@ func main() {
 		obj["msg"] = "successfully received!"
 		ctx.Json(obj, 200)
 	})
-    log.Fatal(engine.BoostEngine("localhost:9999"))
+  log.Fatal(engine.BoostEngine("localhost:9999"))
 }
 ```
 
-dynamic router
-```golang
+#### dynamic router
+
+```go
 import (
 	. "./goose"
 )
 func main() {
 	engine := New()
 	engine.GET("/hello/home", func(ctx *Context) {})
-    engine.GET("/hello/:name/info", func(ctx *Context) {
-        ctx.Html(fmt.Sprintf("<h2>url param: name=%s</h2>", ctx.Param("name")), 200)
-    })
-    log.Fatal(engine.BoostEngine("localhost:9999"))
+  engine.GET("/hello/:name/info", func(ctx *Context) {
+      ctx.Html(fmt.Sprintf("<h2>url param: name=%s</h2>", ctx.Param("name")), 200)
+  })
+  log.Fatal(engine.BoostEngine("localhost:9999"))
 }
 ```
 
-group router
-```golang
+#### group router
+
+```go
 import (
 	. "./goose"
 )
 func main() {
 	engine := New()
 	v1 := engine.Group("/v1")
-    {
-        v1.GET("/", func(ctx *Context) {
-            ctx.Html("<h1>Hello Group Router</h1>", 200)
-        })
-        v1.GET("/hello", func(ctx *Context) {
-            ctx.Send(fmt.Sprintf("hello %s, you're at %s\n", ctx.Query("name"), ctx.Path), 200)
-        })
-        // nested group
-        v2 := v1.Group("/nested/v2")
-        v2.GET("/", func(ctx *Context) {
-            ctx.Html("<h1>Hello Nested Group Router</h1>", 200)
-        })
-        v2.GET("/hello", func(ctx *Context) {
-            ctx.Send(fmt.Sprintf("hello %s, you're at %s\n", ctx.Query("name"), ctx.Path), 200)
-        })
-    }
-    log.Fatal(engine.BoostEngine("localhost:9999"))
+  {
+    v1.GET("/", func(ctx *Context) {
+      ctx.Html("<h1>Hello Group Router</h1>", 200)
+    })
+    v1.GET("/hello", func(ctx *Context) {
+      ctx.Send(fmt.Sprintf("hello %s, you're at %s\n", ctx.Query("name"), ctx.Path), 200)
+    })
+    // nested group
+    v2 := v1.Group("/nested/v2")
+    v2.GET("/", func(ctx *Context) {
+      ctx.Html("<h1>Hello Nested Group Router</h1>", 200)
+    })
+    v2.GET("/hello", func(ctx *Context) {
+      ctx.Send(fmt.Sprintf("hello %s, you're at %s\n", ctx.Query("name"), ctx.Path), 200)
+    })
+  }
+  log.Fatal(engine.BoostEngine("localhost:9999"))
 }
 ```
 
-use middleware
-```golang
+#### use middleware
+
+```go
 import (
 	. "./goose"
 )
 func main() {
 	engine := New()
 	m1 := engine.Group("/performance")
-    m1.Use(func(context *Context) {
-        context.MiddleStore("info", "Kysoo is a handsome boy!")
-    })
-    m1.GET("/hello/:name", func(ctx *Context) {
-        info := ctx.GetMiddleStorage("info")
-        ctx.Html(fmt.Sprintf("<h2>Hello: %s, %s</h2>", ctx.Param("name"), info), 200)
-    })
-    log.Fatal(engine.BoostEngine("localhost:9999"))
+  m1.Use(func(context *Context) {
+    context.MiddleStore("info", "Kysoo is a handsome boy!")
+  })
+  m1.GET("/hello/:name", func(ctx *Context) {
+    info := ctx.GetMiddleStorage("info")
+    ctx.Html(fmt.Sprintf("<h2>Hello: %s, %s</h2>", ctx.Param("name"), info), 200)
+  })
+  log.Fatal(engine.BoostEngine("localhost:9999"))
 }
 ```
 
-set goose engine options
-```golang
+#### set goose engine options
+
+```go
 /*
 * 设置选项
 prefixString   string // 前缀字符串
@@ -147,8 +153,9 @@ options["logRequest"] = true
 engine.SetOptions(options)
 ```
 
-set static file server
-```golang
+#### set static file server
+
+```go
 // when visit ":port/assets/whatever file" 
 // it will be reflected to ":port/testdata/assets/whatever file" 
 // and process as static file 
@@ -156,8 +163,9 @@ engine.Static("assets","testdata/assets")
 // btw, you can set multiple relfecting static path
 ```
 
-html template
-```golang
+#### html template
+
+```go
 // example code
 engine.LoadHTMLGlob("testdata/html/*") // for loading templates into memory
 engine.GET("/render", func(ctx *Context) {
